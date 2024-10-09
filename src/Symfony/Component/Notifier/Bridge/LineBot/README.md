@@ -7,7 +7,7 @@ DSN example
 -----------
 
 ```
-LINE_BOT_DSN=linenotify://TOKEN@default
+LINE_BOT_DSN=linebot://TOKEN@default
 ```
 
 Resources
