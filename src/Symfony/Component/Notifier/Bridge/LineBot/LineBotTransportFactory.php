@@ -18,7 +18,7 @@ use Symfony\Component\Notifier\Transport\Dsn;
 /**
  * * @author Yi-Jyun Pan <me@pan93.com>
  */
-final class LineNotifyTransportFactory extends AbstractTransportFactory
+final class LineBotTransportFactory extends AbstractTransportFactory
 {
     private const SCHEME = 'linebot';
 
@@ -27,16 +27,20 @@ final class LineNotifyTransportFactory extends AbstractTransportFactory
         return [self::SCHEME];
     }
 
-    public function create(Dsn $dsn): LineNotifyTransport
+    public function create(Dsn $dsn): LineBotTransport
     {
         if (self::SCHEME !== $dsn->getScheme()) {
             throw new UnsupportedSchemeException($dsn, self::SCHEME, $this->getSupportedSchemes());
         }
 
-        $token = $this->getUser($dsn);
+        $accessToken = $this->getUser($dsn);
+        $receiver = $dsn->getRequiredOption('receiver');
         $host = 'default' === $dsn->getHost() ? null : $dsn->getHost();
         $port = $dsn->getPort();
 
-        return (new LineNotifyTransport($token, $this->client, $this->dispatcher))->setHost($host)->setPort($port);
+        $config = new \LINE\Clients\MessagingApi\Configuration();
+        $config->setAccessToken($accessToken);
+
+        return (new LineBotTransport($config, $receiver, $this->client, $this->dispatcher))->setHost($host)->setPort($port);
     }
 }

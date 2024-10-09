@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Notifier\Bridge\LineBot\Tests;
 
+use Symfony\Component\Notifier\Bridge\LineBot\LineBotTransportFactory;
 use Symfony\Component\Notifier\Bridge\LineNotify\LineNotifyTransportFactory;
 use Symfony\Component\Notifier\Test\AbstractTransportFactoryTestCase;
 use Symfony\Component\Notifier\Test\IncompleteDsnTestTrait;
@@ -18,26 +19,27 @@ use Symfony\Component\Notifier\Test\IncompleteDsnTestTrait;
 /**
  * @author Yi-Jyun Pan <me@pan93.com>
  */
-final class LineNotifyTransportFactoryTest extends AbstractTransportFactoryTestCase
+final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
 {
     use IncompleteDsnTestTrait;
 
-    public function createFactory(): LineNotifyTransportFactory
+    public function createFactory(): LineBotTransportFactory
     {
-        return new LineNotifyTransportFactory();
+        return new LineBotTransportFactory();
     }
 
     public static function supportsProvider(): iterable
     {
-        yield [true, 'linenotify://host'];
+        yield [true, 'linebot://host?receiver=abc'];
+        yield [false, 'linebot://host'];
         yield [false, 'somethingElse://host'];
     }
 
     public static function createProvider(): iterable
     {
         yield [
-            'linenotify://host.test',
-            'linenotify://token@host.test',
+            'linebot://host.test?receiver=abc',
+            'linebot://token@host.test',
         ];
     }
 

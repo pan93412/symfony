@@ -24,7 +24,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @author Yi-Jyun Pan <me@pan93.com>
  */
-final class LineNotifyTransportTest extends TransportTestCase
+final class LineBotTransportTest extends TransportTestCase
 {
     public static function createTransport(?HttpClientInterface $client = null): LineNotifyTransport
     {
