@@ -7,10 +7,16 @@ DSN example
 -----------
 
 ```
-linebot://default?receiver=RECEIVER&token=TOKEN
+linebot://TOKEN@default?receiver=RECEIVER
 ```
 
 `RECEIVER` can be retrieved from <https://developers.line.biz/en/docs/messaging-api/getting-user-ids/#getting-user-ids>.
+
+`TOKEN` should be encoded in URL format. Encode it with this command:
+
+```
+php -r 'echo urlencode("your+token///");'
+```
 
 Resources
 ---------

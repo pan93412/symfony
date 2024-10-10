@@ -46,7 +46,9 @@ final class LineBotTransport extends AbstractTransport
             'POST',
             "https://{$this->getEndpoint()}/v2/bot/message/push",
             [
-                'auth_bearer' => $this->channelAccessToken,
+                'headers' => [
+                    'Authorization' => "Bearer $this->channelAccessToken",
+                ],
                 'json' => [
                     'to' => $this->receiver,
                     'messages' => [

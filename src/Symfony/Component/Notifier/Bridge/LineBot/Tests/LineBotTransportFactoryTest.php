@@ -14,6 +14,7 @@ namespace Symfony\Component\Notifier\Bridge\LineBot\Tests;
 use Symfony\Component\Notifier\Bridge\LineBot\LineBotTransportFactory;
 use Symfony\Component\Notifier\Test\AbstractTransportFactoryTestCase;
 use Symfony\Component\Notifier\Test\IncompleteDsnTestTrait;
+use Symfony\Component\Notifier\Transport\Dsn;
 
 /**
  * @author Yi-Jyun Pan <me@pan93.com>
@@ -21,6 +22,8 @@ use Symfony\Component\Notifier\Test\IncompleteDsnTestTrait;
 final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
 {
     use IncompleteDsnTestTrait;
+
+    private const MOCK_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iL+CJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcyODU1MjA3OSwiaW+F0IjoxNzI4NTUyMDc5fQ.SPKpGKwsXBay2uXDh7tATW20S2vZpw9qcmYjNp46Ir/AB/12345677=';
 
     public function createFactory(): LineBotTransportFactory
     {
@@ -36,9 +39,11 @@ final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
 
     public static function createProvider(): iterable
     {
+        $encodedToken = urlencode(self::MOCK_TOKEN);
+
         yield [
             'linebot://api.line.me?receiver=test',
-            'linebot://default?receiver=test&token=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcyODU1MjA3OSwiaW+F0IjoxNzI4NTUyMDc5fQ.SPKpGKwsXBay2uXDh7tATW20S2vZpw9qcmYjNp46Ir/AB/12345677=',
+            'linebot://'.$encodedToken.'@default?receiver=test',
         ];
     }
 
@@ -51,5 +56,15 @@ final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
     {
         yield ['somethingElse://token@host'];
         yield ['somethingElse://token@host?receiver=abc&token=token'];
+    }
+
+    public function testDsnToken(): void
+    {
+        $encodedToken = urlencode(self::MOCK_TOKEN);
+
+        $uri = "linebot://$encodedToken@default?receiver=test";
+        $dsn = new Dsn($uri);
+
+        $this->assertSame(self::MOCK_TOKEN, $dsn->getUser());
     }
 }
