@@ -7,8 +7,10 @@ DSN example
 -----------
 
 ```
-LINE_BOT_DSN=linebot://TOKEN@default
+linebot://default?receiver=RECEIVER&token=TOKEN
 ```
+
+`RECEIVER` can be retrieved from <https://developers.line.biz/en/docs/messaging-api/getting-user-ids/#getting-user-ids>.
 
 Resources
 ---------

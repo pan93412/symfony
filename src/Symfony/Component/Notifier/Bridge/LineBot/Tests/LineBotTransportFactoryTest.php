@@ -29,7 +29,7 @@ final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
 
     public static function supportsProvider(): iterable
     {
-        yield [true, 'linebot://host?receiver=abc'];
+        yield [true, 'linebot://host?receiver=abc&token=token'];
         yield [true, 'linebot://host'];
         yield [false, 'somethingElse://host'];
     }
@@ -37,8 +37,8 @@ final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
     public static function createProvider(): iterable
     {
         yield [
-            'linebot://host.test?receiver=abc',
-            'linebot://token@host.test?receiver=abc',
+            'linebot://api.line.me?receiver=test',
+            'linebot://default?receiver=test&token=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcyODU1MjA3OSwiaW+F0IjoxNzI4NTUyMDc5fQ.SPKpGKwsXBay2uXDh7tATW20S2vZpw9qcmYjNp46Ir/AB/12345677=',
         ];
     }
 
@@ -50,5 +50,6 @@ final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
     public static function unsupportedSchemeProvider(): iterable
     {
         yield ['somethingElse://token@host'];
+        yield ['somethingElse://token@host?receiver=abc&token=token'];
     }
 }

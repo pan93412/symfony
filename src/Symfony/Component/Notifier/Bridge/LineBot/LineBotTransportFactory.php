@@ -33,7 +33,7 @@ final class LineBotTransportFactory extends AbstractTransportFactory
             throw new UnsupportedSchemeException($dsn, self::SCHEME, $this->getSupportedSchemes());
         }
 
-        $accessToken = $this->getUser($dsn);
+        $accessToken = $dsn->getRequiredOption('token');
         $receiver = $dsn->getRequiredOption('receiver');
         $host = 'default' === $dsn->getHost() ? null : $dsn->getHost();
         $port = $dsn->getPort();
