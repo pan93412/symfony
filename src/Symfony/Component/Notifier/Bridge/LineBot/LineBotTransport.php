@@ -25,6 +25,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class LineBotTransport extends AbstractTransport
 {
+    protected const HOST = 'api.line.me';
+
     public function __construct(
         #[\SensitiveParameter] private readonly string $channelAccessToken,
         private readonly string $receiver,
@@ -42,7 +44,7 @@ final class LineBotTransport extends AbstractTransport
 
         $response = $this->client->request(
             'POST',
-            "https://{$this->getEndpoint()}/api/notify",
+            "https://{$this->getEndpoint()}/v2/bot/message/push",
             [
                 'auth_bearer' => $this->channelAccessToken,
                 'json' => [
