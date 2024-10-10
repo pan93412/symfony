@@ -11,12 +11,7 @@
 
 namespace Symfony\Component\Notifier\Bridge\LineBot;
 
-use LINE\Clients\MessagingApi\Model\Message;
-use LINE\Clients\MessagingApi\Model\PushMessageRequest;
-use Symfony\Component\Notifier\Bridge\LineBot\Exception\MalformedMessageRequestException;
-use Symfony\Component\Notifier\Exception\RuntimeException;
 use Symfony\Component\Notifier\Exception\TransportException;
-use Symfony\Component\Notifier\Exception\TransportExceptionInterface;
 use Symfony\Component\Notifier\Exception\UnsupportedMessageTypeException;
 use Symfony\Component\Notifier\Message\ChatMessage;
 use Symfony\Component\Notifier\Message\MessageInterface;
@@ -32,11 +27,10 @@ final class LineBotTransport extends AbstractTransport
 {
     public function __construct(
         #[\SensitiveParameter] private readonly string $channelAccessToken,
-        private readonly string                        $receiver,
-        ?HttpClientInterface                           $client = null,
-        ?EventDispatcherInterface                      $dispatcher = null,
-    )
-    {
+        private readonly string $receiver,
+        ?HttpClientInterface $client = null,
+        ?EventDispatcherInterface $dispatcher = null,
+    ) {
         parent::__construct($client, $dispatcher);
     }
 
@@ -78,7 +72,7 @@ final class LineBotTransport extends AbstractTransport
             throw new TransportException("Unable to post the LINE message: \"$originalContent\" ($statusCode: \"$errorMessage\")", $response);
         }
 
-        return new SentMessage($message, (string)$this);
+        return new SentMessage($message, (string) $this);
     }
 
     public function supports(MessageInterface $message): bool

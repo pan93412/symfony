@@ -12,7 +12,6 @@
 namespace Symfony\Component\Notifier\Bridge\LineBot\Tests;
 
 use Symfony\Component\Notifier\Bridge\LineBot\LineBotTransportFactory;
-use Symfony\Component\Notifier\Bridge\LineNotify\LineNotifyTransportFactory;
 use Symfony\Component\Notifier\Test\AbstractTransportFactoryTestCase;
 use Symfony\Component\Notifier\Test\IncompleteDsnTestTrait;
 
