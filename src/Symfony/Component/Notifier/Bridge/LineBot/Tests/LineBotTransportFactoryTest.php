@@ -31,7 +31,7 @@ final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
     public static function supportsProvider(): iterable
     {
         yield [true, 'linebot://host?receiver=abc'];
-        yield [false, 'linebot://host'];
+        yield [true, 'linebot://host'];
         yield [false, 'somethingElse://host'];
     }
 
@@ -39,13 +39,13 @@ final class LineBotTransportFactoryTest extends AbstractTransportFactoryTestCase
     {
         yield [
             'linebot://host.test?receiver=abc',
-            'linebot://token@host.test',
+            'linebot://token@host.test?receiver=abc',
         ];
     }
 
     public static function incompleteDsnProvider(): iterable
     {
-        yield 'missing token' => ['linenotify://host.test'];
+        yield 'missing token' => ['linebot://host.test'];
     }
 
     public static function unsupportedSchemeProvider(): iterable

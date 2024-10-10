@@ -38,9 +38,6 @@ final class LineBotTransportFactory extends AbstractTransportFactory
         $host = 'default' === $dsn->getHost() ? null : $dsn->getHost();
         $port = $dsn->getPort();
 
-        $config = new \LINE\Clients\MessagingApi\Configuration();
-        $config->setAccessToken($accessToken);
-
-        return (new LineBotTransport($config, $receiver, $this->client, $this->dispatcher))->setHost($host)->setPort($port);
+        return (new LineBotTransport($accessToken, $receiver, $this->client, $this->dispatcher))->setHost($host)->setPort($port);
     }
 }

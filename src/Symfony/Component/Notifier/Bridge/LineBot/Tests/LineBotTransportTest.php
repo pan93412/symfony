@@ -12,7 +12,7 @@
 namespace Symfony\Component\Notifier\Bridge\LineBot\Tests;
 
 use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\Notifier\Bridge\LineNotify\LineNotifyTransport;
+use Symfony\Component\Notifier\Bridge\LineBot\LineBotTransport;
 use Symfony\Component\Notifier\Exception\TransportException;
 use Symfony\Component\Notifier\Message\ChatMessage;
 use Symfony\Component\Notifier\Message\SmsMessage;
@@ -26,14 +26,14 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  */
 final class LineBotTransportTest extends TransportTestCase
 {
-    public static function createTransport(?HttpClientInterface $client = null): LineNotifyTransport
+    public static function createTransport(?HttpClientInterface $client = null): LineBotTransport
     {
-        return (new LineNotifyTransport('testToken', $client ?? new MockHttpClient()))->setHost('host.test');
+        return (new LineBotTransport('testToken', 'testReceiver', $client ?? new MockHttpClient()))->setHost('host.test');
     }
 
     public static function toStringProvider(): iterable
     {
-        yield ['linenotify://host.test', self::createTransport()];
+        yield ['linebot://host.test?receiver=testReceiver', self::createTransport()];
     }
 
     public static function supportedMessagesProvider(): iterable
@@ -55,14 +55,14 @@ final class LineBotTransportTest extends TransportTestCase
             ->willReturn(400);
         $response->expects($this->once())
             ->method('getContent')
-            ->willReturn(json_encode(['message' => 'testDescription', 'code' => 'testErrorCode', 'status' => 'testStatus']));
+            ->willReturn(json_encode(['message' => 'testDescription']));
 
         $client = new MockHttpClient(static fn (): ResponseInterface => $response);
 
         $transport = $this->createTransport($client);
 
         $this->expectException(TransportException::class);
-        $this->expectExceptionMessageMatches('/testMessage.+testDescription/');
+        $this->expectExceptionMessageMatches('/testMessage.+400: "testDescription"/');
 
         $transport->send(new ChatMessage('testMessage'));
     }

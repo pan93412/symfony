@@ -15,6 +15,8 @@ use LINE\Clients\MessagingApi\Model\Message;
 use LINE\Clients\MessagingApi\Model\PushMessageRequest;
 use Symfony\Component\Notifier\Bridge\LineBot\Exception\MalformedMessageRequestException;
 use Symfony\Component\Notifier\Exception\RuntimeException;
+use Symfony\Component\Notifier\Exception\TransportException;
+use Symfony\Component\Notifier\Exception\TransportExceptionInterface;
 use Symfony\Component\Notifier\Exception\UnsupportedMessageTypeException;
 use Symfony\Component\Notifier\Message\ChatMessage;
 use Symfony\Component\Notifier\Message\MessageInterface;
@@ -28,21 +30,14 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class LineBotTransport extends AbstractTransport
 {
-    private \LINE\Clients\MessagingApi\Api\MessagingApiApi $api;
-
     public function __construct(
-        #[\SensitiveParameter] private readonly \LINE\Clients\MessagingApi\Configuration $config,
-        private readonly string                                                          $receiver,
-        ?HttpClientInterface                                                             $client = null,
-        ?EventDispatcherInterface                                                        $dispatcher = null,
+        #[\SensitiveParameter] private readonly string $channelAccessToken,
+        private readonly string                        $receiver,
+        ?HttpClientInterface                           $client = null,
+        ?EventDispatcherInterface                      $dispatcher = null,
     )
     {
         parent::__construct($client, $dispatcher);
-
-        $this->api = new \LINE\Clients\MessagingApi\Api\MessagingApiApi(
-            client: $client,
-            config: $this->config
-        );
     }
 
     protected function doSend(MessageInterface $message): SentMessage
@@ -51,25 +46,36 @@ final class LineBotTransport extends AbstractTransport
             throw new UnsupportedMessageTypeException(__CLASS__, ChatMessage::class, $message);
         }
 
-        $pushMessageRequest = (new PushMessageRequest())
-            ->setTo($this->receiver)
-            ->setMessages([
-                new Message([
-                    'type' => 'text',
-                    'text' => $message->getSubject(),
-                ]),
-            ]);
+        $response = $this->client->request(
+            'POST',
+            "https://{$this->getEndpoint()}/api/notify",
+            [
+                'auth_bearer' => $this->channelAccessToken,
+                'json' => [
+                    'to' => $this->receiver,
+                    'messages' => [
+                        [
+                            'type' => 'text',
+                            'text' => $message->getSubject(),
+                        ],
+                    ],
+                ],
+            ],
+        );
 
         try {
-            $this->api->pushMessage($pushMessageRequest);
-        } catch (\LINE\Clients\MessagingApi\ApiException $e) {
-            throw new RuntimeException(
-                "Unable to send messages to LINE: \"{$e->getMessage()}\"",
-                $e->getCode(),
-                previous: $e,
-            );
-        } catch (\InvalidArgumentException $e) {
-            throw new MalformedMessageRequestException($pushMessageRequest, previous: $e);
+            $statusCode = $response->getStatusCode();
+        } catch (\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface $e) {
+            throw new TransportException('Could not reach the remote LINE server.', $response, 0, $e);
+        }
+
+        if (200 !== $statusCode) {
+            $originalContent = $message->getSubject();
+
+            $result = $response->toArray(false) ?: ['message' => ''];
+            $errorMessage = trim($result['message']);
+
+            throw new TransportException("Unable to post the LINE message: \"$originalContent\" ($statusCode: \"$errorMessage\")", $response);
         }
 
         return new SentMessage($message, (string)$this);
